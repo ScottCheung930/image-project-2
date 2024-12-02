@@ -1,11 +1,11 @@
 clear;
 
-% Print out the values of the matrix A, Sec 2.1
+%% Print out the values of the matrix A, Sec 2.1
 M = 8;
 matA = matA_DCT(8);
 disp(matA)
 
-% Plot a graph of the quantizer function, Sec 2.2
+%% Plot a graph of the quantizer function, Sec 2.2
 original_vec = linspace(-10, 10, 1000);
 quant_vec = midTreadQuant(original_vec, 1);
 figure;
@@ -27,8 +27,7 @@ harbour = double(imread("../images/harbour512x512.tif"));
 peppers = double(imread("../images/peppers512x512.tif"));
 [lenX, lenY] = size(boats);
 
-% Compare d with the mean squared error between the original and the
-% quantized DCT coefficients, Sec 2.3
+%% Compare d with the mean squared error between the original and the quantized DCT coefficients, Sec 2.3
 step_size = 10; % you can change this value
 img = harbour; % you can choose another image to test
 img_dct_mat = []; % matrix that stores the DCT coeffs
@@ -49,7 +48,7 @@ d_dct = mse(img_dct_mat, img_dct_quant_mat); % MSE of original/quantized DCT coe
 disp("The difference between MSE of DCT Coefficients and MSE of Images = ")
 disp(mae(d-d_dct))
 
-% rate-PSNR curve
+%% rate-PSNR curve, Sec 2.3
 step_range = 2.^(0:9); % Step size range
 bit_rates = []; % Stores the average bit rate across all 8x8 DCT coefficients for different step sizes
 psnr_vec = []; % Stores the average PSNR values for different step sizes
