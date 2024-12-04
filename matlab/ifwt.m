@@ -1,8 +1,10 @@
-function tmp = ifwt(APPROXs, HORIZONTOLs, VERTICALs, DIAGONALs, scales, LoR, HiR)
-    tmp = APPROXs{scales};
+function reconstructed_img = ifwt(APPROXs, HORIZONTOLs, VERTICALs, DIAGONALs, scales, LoR, HiR)
+    % To recover the image, only the smallest approxiamation is needed
+    APPROX_tmp = APPROXs{end};
     for i = scales : -1 : 1
-        tmp = filterbank_synthesis_2d(tmp, HORIZONTOLs{i}, VERTICALs{i}, DIAGONALs{i}, LoR, HiR);
+        APPROX_tmp = filterbank_synthesis_2d(APPROX_tmp, HORIZONTOLs{i}, VERTICALs{i}, DIAGONALs{i}, LoR, HiR);
     end
+    reconstructed_img = APPROX_tmp;
 end
 
 function reconstruction_2d = filterbank_synthesis_2d(APPROX, HORIZONTOL, VERTICAL, DIAGONAL, LoR, HiR)

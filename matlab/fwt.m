@@ -14,6 +14,9 @@ function [APPROXs, HORIZONTOLs, VERTICALs, DIAGONALs] = fwt(img, scales, LoD, Hi
         % Only retain the approximations in each iteration
         img = APPROX;
     end
+    % 
+    % % In DWT, only the smallest scale of approximation is needed
+    % APPROX_smallest ={APPROXs{end}};
 end
 
 function [APPROX, HORIZONTOL, VERTICAL, DIAGONAL] = filterbank_analysis_2d(data_2d, LoD, HiD)

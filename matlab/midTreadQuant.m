@@ -10,4 +10,3 @@ function quantized_val = midTreadQuant(input_val, step)
         quantized_val = round(input_val / step) * step; % Quantization formula
     end
 end
-
