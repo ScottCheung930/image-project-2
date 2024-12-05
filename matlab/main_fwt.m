@@ -1,4 +1,4 @@
-function [bit_rates, psnr_vec] = main_fwt()
+function [bit_rates, psnr_vec] = main_fwt(mode)
     load coeffs.mat;
 
     %% Compute all four filters by defination
@@ -10,12 +10,16 @@ function [bit_rates, psnr_vec] = main_fwt()
     % % Or equivalently
     % [LoD, HiD, LoR, HiR] = wfilters('db4');
 
-
     files = ["../images/harbour512x512.tif"; "../images/boats512x512.tif"; "../images/peppers512x512.tif"];
 
     %% rate-PSNR curve, Sec 3.3
-
-    step_range = 2.^(0:9); % Step size range
+    if mode == 'all bit rates'
+        step_range = round(2.^(0:9));
+    elseif mode == 'low bit rates'
+        step_range = round(2.^(6:0.3:9)); % Step size range
+    else
+        error('Please enter a valid mode')
+    end
     bit_rates = []; % Stores the average bit rate across all 8x8 DCT coefficients for different step sizes
     psnr_vec = []; % Stores the average PSNR values for different step sizes
     img_mse= zeros(10, 3);
@@ -68,7 +72,7 @@ function [bit_rates, psnr_vec] = main_fwt()
             deno = size(APPROXs{scales} ,1) * size(APPROXs{scales} ,2);
             mse_1 = mse_1 + mse(APPROXs{scales}, APPROXs_quant{scales}) * size(APPROXs{scales} ,1) * size(APPROXs{scales} ,2);
             SUBBAND={};
-            SUBBAND{1}=APPROXs{scales};
+            SUBBAND{1}=APPROXs_quant{scales};
             for i = 1:numel(APPROXs)
                 j=j+1;
                 SUBBAND{j}=HORIZONTOLs_quant{i};
@@ -95,7 +99,6 @@ function [bit_rates, psnr_vec] = main_fwt()
                     SUBBANDS{i}= [SUBBANDS{i},SUBBAND{i}];
                 end
             end
-            %spiral_plot = fwt_coef_splice(scales, img_height, img_width, APPROXs, HORIZONTOLs, VERTICALs, DIAGONALs,max_val, 0);
 
         end
         psnr_step = PSNR(imgs,img_recons);
@@ -103,20 +106,13 @@ function [bit_rates, psnr_vec] = main_fwt()
 
         bit_rate_step = 0;
         subband_total_size=0;
-        for i=1:(2^scales - (scales -1))
+        for i=1:numel(SUBBANDS)
             bit_rate_step = bit_rate_step + computeBitRate(SUBBANDS{i}) * size(SUBBANDS{i}, 1)*size(SUBBANDS{i}, 2);
-            subband_total_size=subband_total_size+size(SUBBANDS{i}, 1)*size(SUBBANDS{i}, 2);
+            subband_total_size=subband_total_size + size(SUBBANDS{i}, 1)*size(SUBBANDS{i}, 2);
         end
         bit_rate_step = bit_rate_step/subband_total_size;
 
         bit_rates =[bit_rates, bit_rate_step]; % Store average bit rate for this step size
     end
-%     figure;
-%     plot(bit_rates, psnr_vec, '-o', 'LineWidth', 1.5, 'MarkerSize', 8);
-%     grid on;
-%     title('PSNR vs Bit Rate (FWT)', 'FontSize', 14);
-%     xlabel('Bit Rate (bits per pixel)', 'FontSize', 12);
-%     ylabel('PSNR (dB)', 'FontSize', 12);
-%     legend('PSNR Curve', 'Location', 'best', 'FontSize', 10); 
-%     set(gca, 'FontSize', 10, 'GridAlpha', 0.3); 
+    
 end

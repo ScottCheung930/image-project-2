@@ -1,4 +1,4 @@
-function [bit_rates, psnr_vec] = main_dct()
+function [bit_rates, psnr_vec] = main_dct(mode)
     %% Print out the values of the matrix A, Sec 2.1
     M = 8;
     matA = matA_DCT(8);
@@ -27,7 +27,7 @@ function [bit_rates, psnr_vec] = main_dct()
     [lenX, lenY] = size(boats);
 
     %% Compare d with the mean squared error between the original and the quantized DCT coefficients, Sec 2.3
-    step_size = 10; % you can change this value
+    step_size = 1; % you can change this value
     img = harbour; % you can choose another image to test
     img_dct_mat = []; % matrix that stores the DCT coeffs
     img_dct_quant_mat = []; % matrix that stores the quantized DCT coeffs
@@ -48,11 +48,16 @@ function [bit_rates, psnr_vec] = main_dct()
     disp(mae(d-d_dct))
 
     %% rate-PSNR curve, Sec 2.3
-    step_range = 2.^(0:9); % Step size range
+    if mode == 'all bit rates'
+        step_range = round(2.^(0:9));
+    elseif mode == 'low bit rates'
+        step_range = round(2.^(6:0.3:9)); % Step size range
+    else
+        error('Please enter a valid mode')
+    end
     bit_rates = []; % Stores the average bit rate across all 8x8 DCT coefficients for different step sizes
     psnr_vec = []; % Stores the average PSNR values for different step sizes
 
-    % Loop over different quantizer step sizes
     for step = step_range
         block_dct_quant_mat = []; % Stores quantized DCT coefficients for all positions in all blocks
         boats_recon = zeros(lenX, lenY); % Reconstructed image for boats
@@ -90,20 +95,8 @@ function [bit_rates, psnr_vec] = main_dct()
 
         % Calculate PSNR for each image and take the average
         psnr_step = PSNR([boats, harbour, peppers], [boats_recon, harbour_recon, peppers_recon]); % PSNR for boats image
-    %     harbour_psnr = PSNR(harbour, harbour_recon); % PSNR for harbour image
-    %     peppers_psnr = PSNR(peppers, peppers_recon); % PSNR for peppers image
-    %     psnr_step = (boats_psnr + harbour_psnr + peppers_psnr) / 3; % Average PSNR for this step size
         psnr_vec = [psnr_vec, psnr_step]; % Store average PSNR for this step size
+
     end
-
-
-%     figure;
-%     plot(bit_rates, psnr_vec, '-o', 'LineWidth', 1.5, 'MarkerSize', 8);
-%     grid on;
-%     title('PSNR vs Bit Rate (DCT)', 'FontSize', 14);
-%     xlabel('Bit Rate (bits per pixel)', 'FontSize', 12);
-%     ylabel('PSNR (dB)', 'FontSize', 12);
-%     legend('PSNR Curve', 'Location', 'best', 'FontSize', 10); 
-%     set(gca, 'FontSize', 10, 'GridAlpha', 0.3); 
-
+    
 end

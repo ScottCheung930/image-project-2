@@ -1,8 +1,11 @@
 clear;
 close all;
 
-[dct_bit_rates, dct_psnr_vec] = main_dct();
-[fwt_bit_rates, fwt_psnr_vec] = main_fwt();
+% mode = 'low bit rates';
+mode = 'all bit rates';
+
+[dct_bit_rates, dct_psnr_vec] = main_dct(mode);
+[fwt_bit_rates, fwt_psnr_vec] = main_fwt(mode);
 
 %%
 figure;
