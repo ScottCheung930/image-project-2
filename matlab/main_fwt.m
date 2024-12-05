@@ -1,8 +1,7 @@
 function [bit_rates, psnr_vec] = main_fwt(mode)
     load coeffs.mat;
-
     %% Compute all four filters by defination
-    LoD = db4;
+    LoD = db10;
     n = 1:length(LoD);
     HiD = -(-1).^(n-1) .* LoD(length(LoD) - n + 1);
     LoR = LoD(length(LoD) - n + 1);
