@@ -1,0 +1,78 @@
+function fwt_coef_visual(scales, img_height, img_width, APPROXs, HORIZONTOLs, VERTICALs, DIAGONALs)
+    
+    spiral_plot = zeros(img_height+2^(scales+1), img_width+2^(scales+1)); 
+    
+    %% find maximal value
+    for scale_to_plot = 1:scales
+        approx = APPROXs{scale_to_plot};
+        horizontal = HORIZONTOLs{scale_to_plot};
+        vertical = VERTICALs{scale_to_plot};
+        diagonal = DIAGONALs{scale_to_plot};
+        max_val=max(max(approx));
+        max_val = max(max_val, max(max(horizontal))); 
+        max_val = max(max_val, max(max(vertical)));
+        max_val = max(max_val, max(max(diagonal)));
+    end
+    
+    %% plot FWT coeffecient spliced
+    
+    spiral_plot = fwt_coef_splice()
+    
+    for scale_to_plot = 1:scales
+        approx = APPROXs{scale_to_plot};
+        horizontal = HORIZONTOLs{scale_to_plot};
+        vertical = VERTICALs{scale_to_plot};
+        diagonal = DIAGONALs{scale_to_plot};
+        % Get the size of the coefficients
+        [m, n] = size(approx);    
+        margin = 2^(scales-scale_to_plot);
+        % Place the coefficients in the respective quadrants
+        if scale_to_plot == scales
+            spiral_plot(1:m+2*margin, 1: n+2*margin)=max_val.*ones(m+2*margin,  n+2*margin);
+            spiral_plot(1+margin:m+margin, 1+margin:n+margin) = approx;                    % Top-left: Approximation
+        end
+        spiral_plot(1:(m+2*margin), (n+2*margin+1): (2*(n+2*margin)))=max_val.*ones(m+2*margin,  n+2*margin);
+        spiral_plot(1+margin:m+margin, n+1+3*margin:2*n+3*margin) = horizontal;            % Top-right: Horizontal
+
+        spiral_plot(m+2*margin+1:2*(m+2*margin), 1:n+2*margin)=max_val.*ones(m+2*margin,  n+2*margin);
+        spiral_plot(m+1+3*margin:2*m+3*margin, 1+margin:n+margin) = vertical;              % Bottom-left: Vertical
+
+        spiral_plot(m+2*margin+1:2*(m+2*margin), n+2*margin+1: 2*(n+2*margin))=max_val.*ones(m+2*margin,  n+2*margin);
+        spiral_plot(m+1+3*margin:2*m+3*margin, n+1+3*margin:2*n+3*margin) = diagonal;          % Bottom-right: Diagonal
+        %fprintf("Scale = %d, [m, n] = [%d, %d] ", scale_to_plot, m,n);
+        %fprintf("\n");
+    end
+    figure(1);
+    disp(size(spiral_plot))
+    imagesc(spiral_plot);
+    colormap gray(256);
+    % colorbar;
+    title(sprintf('Wavelet Coefficients (with white margin)'));
+    axis square;
+    axis off;
+    
+    %% plot each scale
+    for scale_to_plot = 1:scales
+        approx = APPROXs{scale_to_plot};
+        horizontal = HORIZONTOLs{scale_to_plot};
+        vertical = VERTICALs{scale_to_plot};
+        diagonal = DIAGONALs{scale_to_plot};
+        % Get the size of the coefficients
+        [m, n] = size(approx);    
+        % Create a larger matrix to accommodate the spiral layout
+        spiral_plot = zeros(2*m, 2*n);    
+        % Place the coefficients in the respective quadrants
+        spiral_plot(1:m, 1:n) = approx;                    % Top-left: Approximation
+        spiral_plot(1:m, n+1:2*n) = horizontal;            % Top-right: Horizontal
+        spiral_plot(m+1:2*m, 1:n) = vertical;              % Bottom-left: Vertical
+        spiral_plot(m+1:2*m, n+1:2*n) = diagonal;          % Bottom-right: Diagonal    
+        figure;
+        imagesc(spiral_plot);
+        colormap gray(256);
+        % colorbar;
+        title(sprintf('Wavelet Coefficients (Scale %d)', scale_to_plot));
+        axis square;
+        axis off;
+    end
+
+end
